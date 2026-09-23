@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Woolworths Meal Planner – Usability Study Questionnaire</title>
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f6f7f8;
+    margin: 0;
+    color: #222;
+  }
+  .wrap {
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 0 16px 40px;
+  }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+  h1 { margin-top: 0; font-size: 30px; }
+  h2 { margin-top: 0; font-size: 22px; }
+  .muted { color: #666; line-height: 1.5; }
+  label { font-weight: 600; display:block; margin-bottom:8px; }
+  input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 12px;
+    border: 1px solid #cfd3d7;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  .field { margin: 18px 0; }
+  .scale {
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap:8px;
+    margin-top:10px;
+  }
+  .scale5 {
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:8px;
+    margin-top:10px;
+  }
+  .choice {
+    border:1px solid #d7dbe0;
+    border-radius:8px;
+    padding:10px 4px;
+    text-align:center;
+    font-size:14px;
+  }
+  .choice input { display:block; margin:0 auto 6px; }
+  .labels {
+    display:flex;
+    justify-content:space-between;
+    color:#666;
+    font-size:13px;
+    margin-top:6px;
+  }
+  .sus-item {
+    padding:16px 0;
+    border-top:1px solid #eee;
+  }
+  .sus-item:first-child { border-top:none; }
+  button {
+    border:none;
+    border-radius:9px;
+    padding:12px 18px;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .primary { background:#1f6feb; color:white; }
+  .secondary { background:#eceff3; color:#222; margin-left:8px; }
+  .success {
+    display:none;
+    background:#eaf7ee;
+    border:1px solid #b7e1c2;
+    color:#1f6d35;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:18px;
+  }
+  .required { color:#b42318; }
+  @media (max-width:640px) {
+    .scale, .scale5 { grid-template-columns: repeat(4, 1fr); }
+    .wrap { margin-top: 12px; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Woolworths Meal Planner – Usability Study Questionnaire</h1>
+    <p class="muted">
+      INFO20004 Group 12. Please answer based on your experience with the Woolworths Meal Planner.
+      Responses are identified only by Participant ID.
+    </p>
+  </div>
+
+  <div id="success" class="success">
+    Response saved on this device. You can export all saved responses as a CSV file below.
+  </div>
+
+  <form id="studyForm">
+    <div class="card">
+      <h2>Participant Information</h2>
+      <div class="field">
+        <label>Participant ID <span class="required">*</span></label>
+        <input type="text" name="participant_id" placeholder="e.g. P1" required />
+      </div>
+      <div class="field">
+        <label>Date <span class="required">*</span></label>
+        <input type="date" name="date" required />
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Single Ease Question (SEQ)</h2>
+      <p class="muted">After each task, rate how easy or difficult you found it. 1 = Very Difficult, 7 = Very Easy.</p>
+
+      <div id="seqContainer"></div>
+
+      <div class="field">
+        <label>Optional comment</label>
+        <textarea name="seq_comment" placeholder="Any comments about the tasks?"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>System Usability Scale (SUS)</h2>
+      <p class="muted">Please select one response for each statement. 1 = Strongly Disagree, 5 = Strongly Agree.</p>
+      <div id="susContainer"></div>
+    </div>
+
+    <div class="card">
+      <h2>Final Comments</h2>
+      <div class="field">
+        <label>What was the most difficult task, and why?</label>
+        <textarea name="final_difficult"></textarea>
+      </div>
+      <div class="field">
+        <label>Was there anything that was difficult to find on the page?</label>
+        <textarea name="final_find"></textarea>
+      </div>
+      <div class="field">
+        <label>Was there anything on the page that distracted or confused you?</label>
+        <textarea name="final_distract"></textarea>
+      </div>
+      <div class="field">
+        <label>If you could improve one thing about the Woolworths Meal Planner, what would you change?</label>
+        <textarea name="final_improve"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <button class="primary" type="submit">Submit Response</button>
+      <button class="secondary" type="button" id="exportBtn">Export All Responses (CSV)</button>
+      <button class="secondary" type="button" id="clearBtn">Clear Saved Responses</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const seqTasks = [
+  "Task 1 – Find and add a recipe",
+  "Task 2 – Return to the Meal Planner",
+  "Task 3 – Change the recipe date",
+  "Task 4 – Shop for ingredients",
+  "Task 5 – Replace an ingredient",
+  "Task 6 – Remove the recipe"
+];
+
+const susItems = [
+  "I think that I would like to use this system frequently.",
+  "I found the system unnecessarily complex.",
+  "I thought the system was easy to use.",
+  "I think that I would need the support of a technical person to be able to use this system.",
+  "I found the various functions in this system were well integrated.",
+  "I thought there was too much inconsistency in this system.",
+  "I would imagine that most people would learn to use this system very quickly.",
+  "I found the system very cumbersome to use.",
+  "I felt very confident using the system.",
+  "I needed to learn a lot of things before I could get going with this system."
+];
+
+const seqContainer = document.getElementById("seqContainer");
+seqTasks.forEach((task, i) => {
+  const block = document.createElement("div");
+  block.className = "field";
+  block.innerHTML = `
+    <label>${task}</label>
+    <div class="scale">
+      ${[1,2,3,4,5,6,7].map(v => `
+        <label class="choice"><input type="radio" name="seq_${i+1}" value="${v}">${v}</label>
+      `).join("")}
+    </div>
+    <div class="labels"><span>Very Difficult</span><span>Very Easy</span></div>
+  `;
+  seqContainer.appendChild(block);
+});
+
+const susContainer = document.getElementById("susContainer");
+susItems.forEach((item, i) => {
+  const block = document.createElement("div");
+  block.className = "sus-item";
+  block.innerHTML = `
+    <label>${i+1}. ${item} <span class="required">*</span></label>
+    <div class="scale5">
+      ${[
+        [1,"Strongly Disagree"],
+        [2,"Disagree"],
+        [3,"Neutral"],
+        [4,"Agree"],
+        [5,"Strongly Agree"]
+      ].map(([v,lab]) => `
+        <label class="choice">
+          <input type="radio" name="sus_${i+1}" value="${v}" required>
+          ${v}<br><small>${lab}</small>
+        </label>
+      `).join("")}
+    </div>
+  `;
+  susContainer.appendChild(block);
+});
+
+document.querySelector('input[name="date"]').valueAsDate = new Date();
+
+function getResponses() {
+  return JSON.parse(localStorage.getItem("wm_usability_responses") || "[]");
+}
+
+function saveResponses(arr) {
+  localStorage.setItem("wm_usability_responses", JSON.stringify(arr));
+}
+
+document.getElementById("studyForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const obj = {};
+  fd.forEach((v,k) => obj[k] = v);
+  obj.timestamp = new Date().toISOString();
+
+  const responses = getResponses();
+  responses.push(obj);
+  saveResponses(responses);
+
+  document.getElementById("success").style.display = "block";
+  window.scrollTo({top:0, behavior:"smooth"});
+
+  e.target.reset();
+  document.querySelector('input[name="date"]').valueAsDate = new Date();
+});
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const rows = getResponses();
+  if (!rows.length) {
+    alert("No saved responses yet.");
+    return;
+  }
+  const headers = Array.from(new Set(rows.flatMap(r => Object.keys(r))));
+  const esc = s => `"${String(s ?? "").replaceAll('"','""')}"`;
+  const csv = [
+    headers.map(esc).join(","),
+    ...rows.map(r => headers.map(h => esc(r[h] ?? "")).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "woolworths_usability_responses.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (confirm("Delete all responses saved in this browser?")) {
+    localStorage.removeItem("wm_usability_responses");
+    alert("Saved responses cleared.");
+  }
+});
+</script>
+</body>
+</html>
